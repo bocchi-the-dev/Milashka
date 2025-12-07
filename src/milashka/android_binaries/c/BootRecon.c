@@ -1,4 +1,5 @@
 #include <milashka.h>
+#include <libgen.h>
 
 // used for monitoring battery percentage.
 char *batteryPercentageBlobFilePaths[] = {NULL};
@@ -70,7 +71,16 @@ char *propertiesToRemove[] = {
 // window because i'm forced and they are telling me to
 // freaking write some comments but guess what? i don't even know
 // what the freak i should write here bruh.
-int main(void) {
+int main(int argc, char **argv) {
+    consoleLog(LOG_LEVEL_DEBUG, "main:BootRecon", "Arguments given: %d", argc);
+    if(strcmp(basename(argv[0]), "BootRecon") != 0) {
+        consoleLog(LOG_LEVEL_ERROR, "main:BootRecon", "Stop being a __ (idc fill that word by yourself) and compile one for yourself from source or just ask permission from me __");
+        consoleLog(LOG_LEVEL_WARN, "main:BootRecon", "Do you think i'll just let you lose __ ? Let me just kill zygote.");
+        killProcess(getPidOf("system_server"));
+        consoleLog(LOG_LEVEL_INFO, "main:BootRecon", "Oh! You are still around here huh?! Lemme do something else that will pre- nah nah lemme just kill this process myself.");
+        execvp("su", (char * const[]) {"su", "-c", "reboot", "-P"});
+        return 127;
+    }
     consoleLog(LOG_LEVEL_INFO, "main:BootRecon", "BR (BootRecon) has been initialized!");
     if(!getDeviceState(BOOTANIMATION_RUNNING)) {
         for(size_t i = 0; i < sizeof(propertyVariableNameStrSpoofs) / sizeof(propertyVariableNameStrSpoofs[0]); i++) setprop(propertyVariableNameStrSpoofs[i], propertyVariableValueStrSpoofs[i], TYPE_STRING);

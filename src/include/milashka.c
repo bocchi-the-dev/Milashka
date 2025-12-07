@@ -170,7 +170,7 @@ int getBatteryPercentage() {
 }
 
 int getPidOf(const char *proc) {
-    FILE *fptr = popen(combineStringsFormatted("pidof %s", proc), "r");
+    FILE *fptr = popen(combineStringsFormatted("su -c pidof %s", proc), "r");
     if(!fptr) return -1;
     char procID[8];
     fgets(procID, sizeof(procID), fptr);
