@@ -1,0 +1,24 @@
+#
+# Copyright (C) 2025 ぼっち <ayumi.aiko@outlook.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# this property file contains the features that we are
+# going to play with in that ROM.
+
+# Crok's RAM Managment Fix - https://github.com/crok/crokrammgmtfix
+# btw i can remove this if you want to remove this from this repo, croc!
+# i gave credits but i didn't ask you to get permissions, sorry for that though.
+# self-explanatory.
+TARGET_BUILD_ADD_RAM_MANAGEMENT_FIX=false

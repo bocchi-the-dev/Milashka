@@ -86,7 +86,7 @@ int executeScripts(const char *scriptFile, char *const args[], bool requiresOutp
 }
 
 int searchBlockListedStrings(const char *filename, const char *search_str) {
-    char boii[8000];
+    char boii[1000];
     FILE *fptr = fopen(filename, "r"); 
     if(!fptr) abort_instance("searchBlockListedStrings", "Failed to open file for reading: %s", filename);
     while(fgets(boii, sizeof(boii), fptr) != NULL) {
@@ -150,6 +150,13 @@ int checkBlocklistedStringsNChar(const char *haystack) {
     return 0;
 }
 
+bool eraseFile(const char *__file) {
+    FILE *fprrr = fopen(__file, "w");
+    if(!fprrr) return false;
+    fclose(fprrr);
+    return true;
+}
+
 // NOTE: THIS FUNCTION RETURNS STACK AND SHOULD BE CLEARED!!
 char *combineStringsFormatted(const char *format, ...) {
     va_list args;
@@ -179,29 +186,74 @@ char *combineStringsFormatted(const char *format, ...) {
     return result;
 }
 
-char *stringCase(char *string, bool shouldTurnToUpper) {
-    if(shouldTurnToUpper) {
-        int i = 0;
-        while(string[i]) {
-            string[i] = (char)toupper(string[i]);
-            i++;
-        }
-        return string;
-    }
-    else {
-        int i = 0;
-        while(string[i]) {
-            string[i] = (char)tolower(string[i]);
-            i++;
-        }
-        return string;
+char *stringCase(char *string, enum stringCases thisStringCase) {
+    int i = 0;
+    char stringg[sizeof(string)];
+    if(!strcpy(stringg, string)) return string;
+    switch(thisStringCase) {
+        case UPPER:
+            while(stringg[i]) {
+                stringg[i] = (char)toupper(stringg[i]);
+                i++;
+            }
+            return strdup(stringg);
+        case LOWER:
+            while(stringg[i]) {
+                stringg[i] = (char)tolower(stringg[i]);
+                i++;
+            }
+            return strdup(stringg);
+        case BLEH:
+            while(stringg[i]) {
+                if(i % 2 == 0) stringg[i] = (char)tolower(stringg[i]);
+                else stringg[i] = (char)toupper(stringg[i]);
+                i++;
+            }
+            return strdup(stringg);
+        default:
+            return string;
     }
 }
 
-void abort_instance(const char *service, const char *format, ...) {
+char *getpropFromFile(const char *variableName, const char *propFile) {
+    FILE *filePointer = fopen(propFile, "r");
+    if(!filePointer) {
+        consoleLog(LOG_LEVEL_ERROR, "getpropFromFile", "Failed to open properties file: %s", propFile);
+        return NULL;
+    }
+    char theLine[1000];
+    while(fgets(theLine, sizeof(theLine), filePointer)) {
+        if(strncmp(theLine, variableName, strlen(variableName)) == 0) {
+            strtok(theLine, "=");
+            char *value = strtok(NULL, "\n");
+            fclose(filePointer);
+            return strdup(value);
+        }
+    }
+    fclose(filePointer);
+    return NULL;
+}
+
+void abort_instance(const char *service, const char *message, ...) {
     va_list args;
-    va_start(args, format);
-    consoleLog(LOG_LEVEL_ABORT, "%s", "%s %s", service, format, args);
+    va_start(args, message);
+    FILE *out = NULL;
+    bool toFile = false;
+    if(useStdoutForAllLogs) out = stderr;
+    else {
+        out = fopen(coreLog, "a");
+        if(!out) exit(EXIT_FAILURE);
+        toFile = true;
+    }
+    if(!toFile) fprintf(out, "\033[0;31mABORT: ");
+    else fprintf(out, "ABORT: %s(): ", service);
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wformat-nonliteral"
+    vfprintf(out, message, args);
+    #pragma clang diagnostic pop
+    if(!toFile) fprintf(out, "\033[0m\n");
+    else fprintf(out, "\n");
+    if(!useStdoutForAllLogs && out) fclose(out);
     va_end(args);
     exit(EXIT_FAILURE);
 }
@@ -211,37 +263,37 @@ void consoleLog(enum elogLevel loglevel, const char *service, const char *messag
     va_start(args, message);
     FILE *out = NULL;
     bool toFile = false;
-    if(useStdoutForAllLogs) {
+    if(useStdoutForAllLogs && loglevel != LOG_LEVEL_DEBUG) {
         out = stdout;
-        if(loglevel == LOG_LEVEL_ERROR || loglevel == LOG_LEVEL_WARN || loglevel == LOG_LEVEL_DEBUG || loglevel == LOG_LEVEL_ABORT) out = stderr;
+        if(loglevel == LOG_LEVEL_ERROR || loglevel == LOG_LEVEL_WARN || loglevel == LOG_LEVEL_ABORT) out = stderr;
     }
     else {
         out = fopen(coreLog, "a");
         if(!out) exit(EXIT_FAILURE);
         toFile = true;
     }
+    // i just dont want to handle LOG..ABORT in this case:
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wswitch"
     switch(loglevel) {
         case LOG_LEVEL_INFO:
             if(!toFile) fprintf(out, "\033[2;30;47mINFO: ");
-            else fprintf(out, "INFO: %s: ", service);
+            else fprintf(out, "INFO: %s(): ", service);
         break;
         case LOG_LEVEL_WARN:
             if(!toFile) fprintf(out, "\033[1;33mWARNING: ");
-            else fprintf(out, "WARNING: %s: ", service);
+            else fprintf(out, "WARNING: %s(): ", service);
         break;
         case LOG_LEVEL_DEBUG:
-            if(!toFile) fprintf(out, "\033[0;36mDEBUG: ");
-            else fprintf(out, "DEBUG: %s: ", service);
+            // prevent it from putting it in stderr or out cuz it looks ugly.
+            if(toFile) fprintf(out, "DEBUG: %s(): ", service);
         break;
         case LOG_LEVEL_ERROR:
             if(!toFile) fprintf(out, "\033[0;31mERROR: ");
-            else fprintf(out, "ERROR: %s: ", service);
-        break;
-        case LOG_LEVEL_ABORT:
-            if(!toFile) fprintf(out, "\033[0;31mABORT: ");
-            else fprintf(out, "ABORT: %s: ", service);
+            else fprintf(out, "ERROR: %s(): ", service);
         break;
     }
+    #pragma clang diagnostic pop
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wformat-nonliteral"
     vfprintf(out, message, args);

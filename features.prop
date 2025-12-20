@@ -14,3 +14,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+# this property file contains the features that we are
+# going to play with in that ROM.
+
+# if you have a prop with disable in it, ex: DISABLE_PUBG_GAYME,
+# setting it to true will disable it and setting it false will either leave it as it is
+# or will enable it if necessary.
+# what about others you might ask? well, simple. true = enable and false = disable.
+
+# disables the Gboard's homescreen app icon. You can enable it later in the app settings back if you want.
+FEATURE_DISABLE_GBOARD_HOME_ICON=false
+GBOARD_OVERLAY_DECODED_PATH="./src/milashka/android_overlays/others/gboard"
+
+# adds extra animator/animation scales inside the developer options for...? IDK I JUST WANT IT RAHHHHHHHHHHHH
+# (goes untested, worked on oneui 3.1 and it should work here on memeui :/)
+FEATURE_ADD_EXTRA_ANIMATION_SCALES=false
+ANIMATOR_OVERLAY_DECODED_PATH="src/milashka/android_overlays/system/settings"
+
+# brings searcle (circle to search, untested.)
+FEATURE_ENABLE_SEARCLE=false

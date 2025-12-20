@@ -246,26 +246,6 @@ char *getSystemProperty(const char *propertyVariableName) {
     return NULL;
 }
 
-char *grep_prop(const char *variableName, const char *propFile) {
-    FILE *filePointer = fopen(propFile, "r");
-    if(!filePointer) {
-        consoleLog(LOG_LEVEL_ERROR, "grep_prop", "Failed to open properties file: %s", propFile);
-        return NULL;
-    }
-    char theLine[8000];
-    size_t lengthOfTheString = strlen(variableName);
-    while(fgets(theLine, sizeof(theLine), filePointer)) {
-        if(strncmp(theLine, variableName, lengthOfTheString) == 0) {
-            strtok(theLine, "=");
-            char *value = strtok(NULL, "\n");
-            fclose(filePointer);
-            return value;
-        }
-    }
-    fclose(filePointer);
-    return NULL;
-}
-
 void alertUser(char *message) {
     if(isPackageInstalled("bellavita.toast") == 0) executeCommands("am", (char *const[]) {"am", "start", "-a", "android.intent.action.MAIN", "-e", "toasttext", message, "-n", "bellavita.toast/.MainActivity", NULL}, false);
     else executeCommands("cmd", (char *const[]) {"cmd", "notification", "post", "-S", "bigtext", "-t", "Tsukika", "Tag", message, NULL}, false);

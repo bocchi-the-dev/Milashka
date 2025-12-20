@@ -3,7 +3,7 @@
 # Milashka
 
 ## What is Milashka?  
-Milashka is a work-in-progress MIUI/HyperOS ROM that is focused on improving the user's experience over modifications under the hood.
+Milashka is a work-in-progress MEMEUI/HyperrrOS ROM that is focused on improving the user's experience over modifications under the hood.
 
 ## Usage Guidelines  
 You are free to use this project for personal or commercial purposes, but please provide proper credit.  

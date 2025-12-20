@@ -21,7 +21,7 @@
 
 # script gbl variables:
 [ -z "${buildLogs}" ] && buildLogs="./build/build_milashka.log"
-[ -z "${TMPFILE}" ] && TMPFILE="$(mktemp)"
+[ -z "${tempFile}" ] && tempFile="$(mktemp)"
 
 function grep_prop() {
     [[ -z "$1" || -z "$2" || ! -f "$2" ]] && return 1
@@ -42,7 +42,7 @@ function abort() {
     debugPrint "$2(): $1"
     sleep 0.5
     export PATH="${oldPath}"
-    sudo rm -rf "${buildLogs}" "${TMPFILE}" &>/dev/null
+    sudo rm -rf "${buildLogs}" "${tempFile}" &>/dev/null
     exit 1
 }
 
@@ -250,15 +250,15 @@ function applyDiffPatches() {
         # we are in temp env, we can safely cd to that dir lmao
         cd "$theFilePath" || {
             rm -rf ${tempFile}
-            abort "❌ Failed to cd into $theFilePath" "applyDiffPatches()"
+            abort "Failed to cd into $theFilePath" "applyDiffPatches()"
         }
         # we need to manually type "y|yes" to proceed patching but 
         # we can use this "yes" to the pipeline sudo command to skip typing and
         # patch the file.
         if yes | sudo patch -p0 --batch < "$tempFile" &> "$tempLog"; then
-            consolePrint "✔️ ${strippedFilePathOfPatchFile} got patched without errors"
+            consolePrint "${strippedFilePathOfPatchFile} got patched without errors"
         else
-            consolePrint "❌ Failed to patch ${strippedFilePathOfPatchFile}"
+            consolePrint "Failed to patch ${strippedFilePathOfPatchFile}"
         fi
     )
     rm -rf ${tempFile}
@@ -338,6 +338,7 @@ function getImageFileSystem() {
         fi
     done
     # reached this far means that we have an undefined / unsupported filesystem.
+    echo "Unknown"
     return 1;
 }
 
@@ -397,9 +398,9 @@ function logInterpreter() {
     local command="$2"
     local returnStatus
     debugPrint "$(echo $command | awk '{print $1}')(): $debugMessage" 
-    eval "$command" &> "$TMPFILE"
+    eval "$command" &> "$tempFile"
     returnStatus=$?
-    [[ ! -z "$(cat "$TMPFILE")" ]] && echo "[$(date +%H:%M%p)] - $(echo $command | awk '{print $1}')() output: $(xargs < "$TMPFILE")" >> "$buildLogs"
+    [[ ! -z "$(cat "$tempFile")" ]] && echo "[$(date +%H:%M%p)] - $(echo $command | awk '{print $1}')() output: $(xargs < "$tempFile")" >> "$buildLogs"
     return ${returnStatus}
 }
 

@@ -102,7 +102,6 @@ bool getDeviceState(enum expectedDeviceState exptx);
 bool bootTraceState(enum bootTraceState theBootStage);
 char *combineStringsFormatted(const char *format, ...);
 char *getSystemProperty(const char *propertyVariableName);
-char *grep_prop(const char *string, const char *propFile);
 void alertUser(char *message);
 void prepareStockRecoveryCommandFile(enum openRecoveryScriptNextCommand ors, char *actionArgOne, char *actionArgTwo);
 void daemonStateManager(enum setDaemonPropertyState daemonProp, char *daemonName);

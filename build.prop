@@ -23,6 +23,6 @@ PRODUCT_DIR=
 CUST_DIR=
 
 # build codename and reference version.
-CODENAME="Miyamizu"
+CODENAME="Paranoia"
 CODENAME_VERSION_REFERENCE_ID=1.0
 CODEVERSION_REFERENCE_YAML=1.00000
