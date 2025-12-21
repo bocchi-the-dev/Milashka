@@ -39,19 +39,26 @@ if ! cd "$(realpath "$(dirname "$0")")"; then
     exit 1;
 fi
 
+# build index fucntion:
+function buildMilashkaTarget() {
+    if [ ! -x "$CC" ]; then
+        printf "\033[0;31mmake: Error: Compiler '%s' not found or not executable. Please check the path or install it.\033[0m\n" "$(basename $CC)";
+        exit 1;
+    fi
+    echo -e "\e[0;35mmake: Info: Trying to build $(basename ${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]})..\033[0m"
+    if ! "${CC}" ${CFLAGS} -I"${HEADER_PATH}" ${HEADER_SOURCES} "${SOURCES[${SOURCE_INDEX}]}" -o ${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]} &>$BUILD_LOGFILE; then
+        echo -e "\033[0;31mmake: Error: Failed to build $(basename ${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]})\033[0m, please kindly send the logs to me :)"
+        [ -f "${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]}" ] && rm -rf "${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]}"
+        exit 1
+    fi
+    echo -e "\e[0;35mmake: Info: Finished building $(basename ${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]}), the built binary is located at: ${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]}\033[0m"
+}
+
 # just make the dir 
 mkdir -p "$(dirname "${BUILD_LOGFILE}")"
 for args in "$@"; do
     lowerCaseArgument=$(echo "${args}" | tr '[:upper:]' '[:lower:]')
-    if [[ -z "${SDK}" && "${lowerCaseArgument}" == sdk=* ]]; then
-        SDK="${lowerCaseArgument#sdk=}"
-    fi
-    if [[ -z "${OTA_MANIFEST_URL}" && "${lowerCaseArgument}" == ota_manifest_url=* ]]; then
-        OTA_MANIFEST_URL="${lowerCaseArgument#ota_manifest_url=}"
-    fi
-    if [[ -z "${SKIPSIGN}" && "${lowerCaseArgument}" == skipsign=* ]]; then
-        SKIPSIGN="${lowerCaseArgument#skipsign=}"
-    fi
+    [[ -z "${SDK}" && "${lowerCaseArgument}" == sdk=* ]] && SDK="${lowerCaseArgument#sdk=}"
     if [[ -z "${CC}" && -n "${SDK}" ]]; then
         case "${lowerCaseArgument}" in
             arch=arm)
@@ -75,17 +82,13 @@ for args in "$@"; do
         ;;
         "headertest"|"bootrecon")
             [ "${lowerCaseArgument}" == "headertest" ] && SOURCE_INDEX=0 || SOURCE_INDEX=1
-            if [ ! -x "$CC" ]; then
-                printf "\033[0;31mmake: Error: Compiler '%s' not found or not executable. Please check the path or install it.\033[0m\n" "$(basename $CC)";
-                exit 1;
-            fi
-            echo -e "\e[0;35mmake: Info: Trying to build ${lowerCaseArgument}..\033[0m"
-            if ! "${CC}" ${CFLAGS} -I"${HEADER_PATH}" ${HEADER_SOURCES} "${SOURCES[${SOURCE_INDEX}]}" -o ${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]} &>$BUILD_LOGFILE; then
-                echo -e "\033[0;31mmake: Error: Failed to build ${lowerCaseArgument}\033[0m, please kindly send the logs to me :)"
-                [ -f "${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]}" ] && rm -rf "${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]}"
-                exit 1
-            fi
-            echo -e "\e[0;35mmake: Info: Finished building ${lowerCaseArgument}, the built binary is located at: ${SOURCE_BUILD_OUTPUT_NAMES[${SOURCE_INDEX}]}\033[0m"
+            buildMilashkaTarget;
+        ;;
+        "all")
+            for i in $(seq 0 1); do
+                SOURCE_INDEX="$i"
+                buildMilashkaTarget;
+            done
         ;;
     esac
 done

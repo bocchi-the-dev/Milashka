@@ -25,19 +25,18 @@ int executeCommands(const char *command, char *const args[], bool requiresOutput
         case -1:
             consoleLog(LOG_LEVEL_ERROR, "executeCommands", "Failed to fork process.");
             return 1;
-        break;
         case 0:
+            // switch STDERR and STDOUT output from /dev/null to coreLog.
             if(!requiresOutput) {
-                int devNull = open("/dev/null", O_WRONLY);
-                if(devNull == -1) exit(EXIT_FAILURE);
-                dup2(devNull, STDOUT_FILENO);
-                dup2(devNull, STDERR_FILENO);
-                close(devNull);
+                int awwwwwwTheseHeartsAdore = open(coreLog, O_WRONLY);
+                if(awwwwwwTheseHeartsAdore == -1) exit(EXIT_FAILURE);
+                dup2(awwwwwwTheseHeartsAdore, STDOUT_FILENO);
+                dup2(awwwwwwTheseHeartsAdore, STDERR_FILENO);
+                close(awwwwwwTheseHeartsAdore);
             }
             execvp(command, args);
             consoleLog(LOG_LEVEL_ERROR, "executeCommands", "Failed to execute command: %s", command);
             return 1;
-        break;
         default:
             consoleLog(LOG_LEVEL_DEBUG, "executeCommands", "Waiting for %s to finish it's process.", command);
             int exitStatus;
@@ -62,19 +61,18 @@ int executeScripts(const char *scriptFile, char *const args[], bool requiresOutp
         case -1:
             consoleLog(LOG_LEVEL_ERROR, "executeScripts", "Failed to fork process.");
             return 1;
-        break;
         case 0:
+            // switch STDERR and STDOUT output from /dev/null to coreLog.
             if(!requiresOutput) {
-                int devNull = open("/dev/null", O_WRONLY);
-                if(devNull == -1) exit(EXIT_FAILURE);
-                dup2(devNull, STDOUT_FILENO);
-                dup2(devNull, STDERR_FILENO);
-                close(devNull);
+                int awwwwwwTheseHeartsAdore = open(coreLog, O_WRONLY);
+                if(awwwwwwTheseHeartsAdore == -1) exit(EXIT_FAILURE);
+                dup2(awwwwwwTheseHeartsAdore, STDOUT_FILENO);
+                dup2(awwwwwwTheseHeartsAdore, STDERR_FILENO);
+                close(awwwwwwTheseHeartsAdore);
             }
             execv(scriptFile, args);
             consoleLog(LOG_LEVEL_ERROR, "executeScripts", "Failed to execute %s", scriptFile);
             return 1;
-        break;
         default:
             consoleLog(LOG_LEVEL_DEBUG, "executeScripts", "Waiting for script to finish it's process.");
             int exitStatus;
