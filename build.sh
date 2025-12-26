@@ -101,7 +101,7 @@ BUILD_TARGET_ARCH=$(
 )
 
 # TODO: check the arch and start building.
-[ -z "${BUILD_TARGET_ARCH}" ] && abort "Unknown ROM architecture, since when did samsung started making ROMS for unknown architectures? i don't knowwwwwwww and i won't letting you in!" "build.sh"
+[ -z "${BUILD_TARGET_ARCH}" ] && abort "Unknown ROM architecture, since when did xiaomi started making ROMS for unknown architectures? i don't knowwwwwwww and i won't be letting you in!" "build.sh"
 
 # TODO: install framework for better overlay compilation.
 logInterpreter "Unpacking Android ${BUILD_TARGET_ANDROID_VERSION} framework..." "java -jar ./src/dependencies/bin/apktool.jar install-framework ${SYSTEM_DIR}/framework/framework-res.apk" || abort "Failed to unpack framework app."

@@ -21,7 +21,7 @@
 int isPackageInstalled(const char *packageName) {
     FILE *fptr = popen("pm list packages | cut -d ':' -f 2", "r");
     if(!fptr) return -1;
-    char string[8000];
+    char string[1000];
     while(fgets(string, sizeof(string), fptr) != NULL) {
         string[strcspn(string, "\n")] = '\0';
         if(strcmp(string, packageName) == 0) {
@@ -229,7 +229,7 @@ char *getSystemProperty(const char *propertyVariableName) {
         PropertyHandler ctx = {0};
         __system_property_read_callback(pi, androidPropertyCallback, &ctx);
         snprintf(globalPropertyValueBuffer, sizeof(globalPropertyValueBuffer), "%s", ctx.propertyValue);
-        return globalPropertyValueBuffer;
+        if(globalPropertyValueBuffer) return globalPropertyValueBuffer;
     }
     else {
         consoleLog(LOG_LEVEL_ERROR, "getSystemProperty", "%s not found in system, trying to gather property value from resetprop...", propertyVariableName);
@@ -241,7 +241,7 @@ char *getSystemProperty(const char *propertyVariableName) {
         // remove the newline char to get a clear value.
         while(fgets(globalPropertyValueBuffer, sizeof(globalPropertyValueBuffer), fptr) != NULL) globalPropertyValueBuffer[strcspn(globalPropertyValueBuffer, "\n")] = '\0';
         fclose(fptr);
-        return globalPropertyValueBuffer;
+        if(globalPropertyValueBuffer) return globalPropertyValueBuffer;
     }
     return NULL;
 }
